@@ -21,12 +21,12 @@ CHAIN_ID = 4663
 # TODO: set to the wallet that signs the launch, once you have one
 WALLET = os.environ.get("MOUSE_WALLET",
                         "0x0000000000000000000000000000000000000000")
-# TODO: set to your deployed CA (contract address) after launch
-TOKEN = os.environ.get("MOUSE_TOKEN", "")
+# deployed CA (contract address)
+TOKEN = os.environ.get("MOUSE_TOKEN", "0x5d1579ff00f45b780fbaa47ed19497f3ea50fd3c")
 WALLET_V1 = os.environ.get("MOUSE_WALLET_V1",
                            "0x0000000000000000000000000000000000000000")
-# the block the token was launched in - set to that block after deployment
-BIRTH_BLOCK = int(os.environ.get("MOUSE_TOKEN_BLOCK", "0"))
+# the block the token was launched in
+BIRTH_BLOCK = int(os.environ.get("MOUSE_TOKEN_BLOCK", "60084696"))
 
 TRANSFER = ("0xddf252ad1be2c89b69c2b068fc378daa"
             "952ba7f163c4a11628f55a4df523b3ef")

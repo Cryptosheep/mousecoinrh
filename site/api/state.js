@@ -9,9 +9,9 @@
 // It reads. There is no key here and no method in the allowlist that writes.
 
 const RPC = process.env.MOUSE_RH_RPC || 'https://rpc.mainnet.chain.robinhood.com';
-const TOKEN = (process.env.MOUSE_TOKEN || '').toLowerCase();  // TODO: your CA after launch
+const TOKEN = (process.env.MOUSE_TOKEN || '0x5d1579ff00f45b780fbaa47ed19497f3ea50fd3c').toLowerCase();
 const WALLET = process.env.MOUSE_WALLET || '0x0000000000000000000000000000000000000000';
-const BIRTH = process.env.MOUSE_TOKEN_BLOCK || '0x0';
+const BIRTH = process.env.MOUSE_TOKEN_BLOCK || '0x394D1D8';
 const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const FEE_ETH = 0.00055;
 
