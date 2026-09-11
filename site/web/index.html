@@ -1008,24 +1008,13 @@ function openSocket(url){
 
 let tickN = 0;
 /* Discovery, then the socket.
-   The mouse's tunnel address is random and changes every run, so live.json in
-   the public repo says where it is. Everything after that - frames, the
-   neural readout, the event stream - arrives on the socket itself. There is
-   no object store in the path any more: pushing two frames a second to one
-   suspended it on operation count and every read started answering 403. */
+   The mouse now streams from a stable named-tunnel hostname, so there is no
+   random address to discover and no CDN-cached file to wait on. Everything
+   after the socket opens - frames, the neural readout, the event stream -
+   arrives on the socket itself. */
+const STREAM = 'https://live.mousebrain.online';
 async function findStream(){
-  try {
-    /* Read from the repo, not from this deployment: the mouse writes the
-       address there and this page is only redeployed when someone deploys
-       it. The minute-keyed query keeps the CDN copy from going stale. */
-    const src = 'https://raw.githubusercontent.com/Cryptosheep/mousecoinrh/main/site/web/live.json';
-    const r = await fetch(src + '?t=' + Math.floor(Date.now()/60000));
-    if (!r.ok) return null;
-    const d = await r.json();
-    if (!d.stream) return null;
-    if (d.at && (Date.now()/1000 - d.at) > 21600) return null;   // stale address
-    return d.stream;
-  } catch (e) { return null; }
+  return STREAM;
 }
 
 async function roamTick(){

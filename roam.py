@@ -160,6 +160,7 @@ def blob_put(path, data, ctype):
 
 TUNNEL = {"url": None, "proc": None}
 CFD = Path(os.path.expanduser("~/.claude/tools/cloudflared/cloudflared.exe"))
+LIVE_HOST = "live.mousebrain.online"
 
 
 def start_tunnel(port):
@@ -167,10 +168,10 @@ def start_tunnel(port):
     Put the roamer's WebSocket on the public internet.
 
     Object storage is not a stream - the site could only ever poll it - so the
-    live screen needs a socket a browser can open. A quick tunnel gives one
-    without an account; the address is random and changes every run, so the mouse
-    publishes whatever it got alongside its state and the page reads it from
-    there rather than having it hardcoded anywhere.
+    live screen needs a socket a browser can open. A named tunnel gives a stable
+    public hostname (live.mousebrain.online) that survives restarts; without its
+    token the process falls back to a quick tunnel whose random address changes
+    every run and has to be published for the page to find it.
     """
     import re as _re
     import subprocess
@@ -180,21 +181,35 @@ def start_tunnel(port):
         say("no cloudflared - the public feed stays on the slow path")
         return
 
-    proc = subprocess.Popen(
-        [str(CFD), "tunnel", "--no-autoupdate", "--url",
-         f"http://127.0.0.1:{port}"],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-        encoding="utf-8", errors="replace", bufsize=1)
+    token = load_env().get("MOUSE_TUNNEL_TOKEN", "").strip()
+    if token:
+        cmd = [str(CFD), "tunnel", "--no-autoupdate", "run",
+               "--token", token, "mousebrain"]
+        TUNNEL["url"] = "https://" + LIVE_HOST
+    else:
+        cmd = [str(CFD), "tunnel", "--no-autoupdate", "--url",
+               f"http://127.0.0.1:{port}"]
+        TUNNEL["url"] = None
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, text=True,
+                            encoding="utf-8", errors="replace", bufsize=1)
     TUNNEL["proc"] = proc
 
     def watch():
         for line in proc.stdout:
-            m = _re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
-            if m and not TUNNEL["url"]:
-                TUNNEL["url"] = m.group(0)
-                say("tunnel open:", TUNNEL["url"])
+            line = line.rstrip()
+            if line:
+                say("cloudflared:", line[:120])
+            if not TUNNEL["url"]:
+                m = _re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
+                if m:
+                    TUNNEL["url"] = m.group(0)
+                    say("tunnel open:", TUNNEL["url"])
 
     threading.Thread(target=watch, daemon=True).start()
+    if TUNNEL["url"]:
+        say("tunnel open:", TUNNEL["url"])
 
 
 LIVE_REPO = "Cryptosheep/mousecoinrh"
