@@ -694,7 +694,7 @@ def publish(stats, jpg, url, hz, neural=None):
         (OUT / "roam_state.json").write_text(payload)
 
         now = time.time()
-        if BLOB_TOKEN and now - _last_push["at"] >= BLOB_EVERY:
+        if now - _last_push["at"] >= BLOB_EVERY:
             _last_push["at"] = now
             import threading
 
